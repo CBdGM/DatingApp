@@ -33,7 +33,7 @@
                     </svg>
                     <span>{{selectedTheme()}}</span>
                 </div>
-                <ul tabindex="1" class="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
+                <ul tabindex="1" class="dropdown-content z-50 menu bg-base-100 rounded-box w-52 p-2 shadow-sm">
                     @for (theme of themes; track $index) {
                         <li (click)="handleSelectTheme(theme)">
                             <a>{{theme}}</a>
@@ -42,17 +42,17 @@
                 </ul>
             </div>
 
-            @if (accountService.currentUser()){
+            @if (accountService.currentUser(); as user){
             <div class="dropdown dropdown-end">
                 <div tabindex="0" role="button" class="flex items-center text-white
                 text-xl gap-3 cursor-pointer">
-                    <img [src]="accountService.currentUser()?.imageUrl || '/user.png'" alt="user avatar"
+                    <img [src]="user?.imageUrl || '/user.png'" alt="user avatar"
                         class="w-12 h-12 rounded-full">
-                    <span>{{accountService.currentUser()?.displayName}}</span>
+                    <span>{{user?.displayName}}</span>
                 </div>
                 <ul tabindex="0" class="dropdown-content menu bg-base-100 
                 rounded-box z-1 w-52 p-2 shadow-sm">
-                    <li><a>Edit Profile</a></li>
+                    <li><a routerLink="/members/{{user.id}}">Edit Profile</a></li>
                     <li><a (click)="logout()">Logout</a></li>
                 </ul>
             </div>
