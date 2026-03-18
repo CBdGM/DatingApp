@@ -17,6 +17,15 @@ export class MemberList implements OnInit {
   private membersService = inject(MemberService);
   protected paginatedMembers = signal<PaginatedResult<Member> | null>(null);
   protected memberParams = new MemberParams();
+  private updateParams = new MemberParams();
+
+  constructor() {
+    const filters = localStorage.getItem('filters');
+    if (filters) {
+      this.memberParams = JSON.parse(filters);
+      this.updateParams =JSON.parse(filters);
+    }
+  }
 
   ngOnInit(): void {
     this.loadMembers();
@@ -46,12 +55,35 @@ export class MemberList implements OnInit {
   }
 
   onFilterChange(data: MemberParams) {
-    this.memberParams = data;
+    this.memberParams = {...data};
+    this.updateParams = {...data};
     this.loadMembers();
   }
 
   resertFilters() {
     this.memberParams = new MemberParams();
     this.loadMembers();
+  }
+
+  get displayMessage(): string {
+    const defaultParams = new MemberParams();
+
+    const filters: string[] = [];
+
+    if (this.updateParams.gender) {
+      filters.push(this.updateParams.gender + 's')
+    } else {
+      filters.push('Males, Females');
+    }
+
+    if (this.updateParams.minAge != defaultParams.minAge 
+      || this.updateParams.maxAge !== defaultParams.maxAge) {
+        filters.push(` ages ${this.updateParams.minAge}-${this.updateParams.maxAge}`)
+    }
+
+    filters.push(this.updateParams.orderBy === 'lastActive' 
+      ?  'Recently active' : 'Newest members');
+    return filters.length > 0 ? `Selected ${filters.join(' | ')}` 
+    : 'All members'
   }
 }
