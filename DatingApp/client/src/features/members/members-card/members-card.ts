@@ -1,7 +1,8 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { Member } from '../../../types/member';
 import { RouterLink } from '@angular/router';
 import { AgePipe } from '../../../core/pipes/age-pipe';
+import { LikesService } from '../../../core/services/likes-service';
 
 @Component({
   selector: 'app-members-card',
@@ -11,19 +12,19 @@ import { AgePipe } from '../../../core/pipes/age-pipe';
 })
 export class MembersCard {
   member = input.required<Member>();
+  private likeService = inject(LikesService);
+  protected hasLiked = computed(() => this.likeService.likeIds().includes(this.member().id))
 
-  calculateAge(dateOfBirth: string): number {
-    const birthDate = new Date(dateOfBirth);
-    const today = new Date();
-
-    let age = today.getFullYear() - birthDate.getFullYear();
-
-    const m = today.getMonth() - birthDate.getMonth();
-
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-
-    return age;
+  toggleLike(event: Event) {
+    event.stopPropagation();
+    this.likeService.toggleLike(this.member().id).subscribe({
+      next: () => {
+        if (this.hasLiked()) {
+          this.likeService.likeIds.update(ids => ids.filter(x => x !== this.member().id))
+        } else {
+          this.likeService.likeIds.update(ids => [...ids, this.member().id])
+        }
+      }
+    })
   }
 }
